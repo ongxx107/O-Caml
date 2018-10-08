@@ -1,0 +1,283 @@
+# Ren Jeik Ong (ongxx107) - 5343975
+#Question 1
+
+let rec power n x =
+  match n with
+  | 0 -> 1.0
+  | _ -> x *. power (n-1) x
+
+princicple of induction: ∀n, P(n) holds if P(0) holds and P(n)-> P(n+1) holds
+
+show: P(n+1, x): power (n+1) x =x^(n+1)
+given: P(n-1, x): power (n-1) x = x^(n-1)
+
+Induction on n
+
+Base:
+    P(0, x) = power 0 x
+            = 1.0       # by def of power
+            = x^. 1.0   # by def of power
+
+Inductive Case:
+     P(n+1, x) = power n+1 x
+               = x*.power n x         # by def of power
+               = x*.x*.power (n-1) x  # by
+               = x*.x*.x^(n-1)        # by inductive hypothesis
+               = x*.x*.power (n-1) x  # by def of power
+               = x*.power (n-1+1) x   # by def of power
+               = power (n-1+1+1) x    # by arithmetic
+               = power (n+1) x        # by def of power
+               = x^(n+1)
+
+#Question 2
+
+princicple of induction: ∀n, P(n) holds if P(Zero) holds and P(n) ⇒ P(Succ n)
+
+type nat = Zero | Succ of nat
+let toInt = function
+  | Zero -> 0
+  | Succ n -> toInt n + 1
+let rec power n x = match n with
+  | Zero -> 1.0
+  | Succ n'-> x *. power n' x
+
+base:
+show: pow Zero x = x ^ toInt Zero
+
+      pow Zero x
+      = 1.0             # by def of power
+      = x ^. 0          # by def of power
+      = x ^ toInt(zero) # by def of toInt
+
+Inductive case:
+show: pow (Succc n) x = x ^ toInt (Succ n)
+given: power n x = x ^ toInt(n)
+
+      pow (Succc n) x
+      = x *. power n x      # by def of power
+      = x *. x ^ toInt(n)   # by inductive hypothesis
+      = x ^ toInt(n+1)      # by arithmetic
+      = x ^ toInt (Succ n)  # by def of toInt
+
+#Question 3
+
+princicple of induction: ∀x, P(x) holds if P([]) holds and P(x) ⇒ P(x::xs)
+
+let rec reverse l = match l with
+  | [] -> []
+  | (h::t) -> append (reverse t) [h]
+let rec append l1 l2 = match l1 with
+  | [] -> l2
+  | (h::t) -> h :: (append t l2)
+
+lemma 1: append l1 l2 = append l2 l1
+
+    Induction on l1
+
+    Base:
+    show: append [] l2 = append l2 []
+
+    LHS:
+        append l2 []
+        = l1   # by def of append
+
+    RHS:
+        append [] l2
+        = l1   # by def of append
+
+    The proof is correct since LHS=RHS.
+
+    Inductive case:
+    show: append x::xs [] = append [] x::xs
+    given: append xs [] = append [] xs
+
+    LHS:
+        append x::xs []
+        = x::(append xs [])   # by def of append
+        = x::(append [] xs)   # by inductive hypothesis
+        = x::xs               # by def of append
+
+    RHS:
+        append [] x::xs
+        = x::xs               # by def of append
+
+    The proof is correct since LHS=RHS.
+
+lemma 2: (append l1 l2)@l3 = (append l1 (l2@l3))
+
+    induction on l1
+
+    Base:
+    show: (append [] l2)@l3 = (append [] (l2@l3))
+
+    LHS:
+        (append [] l2)@l3
+        = l2@l3    # by def of append
+
+    RHS:
+        (append [] (l2@l3))
+        = l2@l3    # by def of append
+
+    The proof is correct since LHS=RHS.
+
+    Inductive case:
+    show: (append x::xs l2)@l3 = (append x::xs (l2@l3))
+    given: (append xs l2)@l3 = (append xs (l2@l3))
+
+    LHS:
+        (append x::xs l2)@l3
+        = x::(append xs l2)@l3    # by def of append
+        = x::(append xs (l2@l3))  # by inductive hypothesis
+
+    RHS:
+        (append x::xs (l2@l3))
+        = x::(append xs (l2@l3))  # by inductive hypothesis
+
+    The proof is correct since LHS=RHS.
+
+#Proof for question 3
+show: reverse (append l1 l2) = append (reverse l2) (reverse l1)
+
+induction on l1
+
+Base:
+show: reverse (append [] l2) = append (reverse l2) (reverse [])
+
+  LHS:
+      reverse (append [] l2)
+      = reverse l2                # by def of append
+
+  RHS:
+      append (reverse l2) (reverse [])
+      = append (reverse l2) []    # by def of reverse
+      = append [] (reverse l2)    # by def of lemma 1
+      = reverse l2                # by def of append
+
+  The proof is correct since LHS=RHS.
+
+Inductive case:
+show: reverse (append x::xs l2) = append (reverse l2) (reverse x::xs)
+given: reverse (append xs l2) = append (reverse l2) (reverse xs)
+
+reverse (append x::xs l2)
+= reverse ( x::append(xs l2) )                    # by def of append
+= append ( reverse (append x l2) [x] )            # by def of reverse
+= append (append (reverse l2) (reverse xs)) [x]   # by inductive hypothesis
+= append (reverse l2) (append (reverse xs) [x])   # by lemma 2
+= append (reverse l2) (reverse x::xs)             # by inductive hypothesis
+
+#Question 4
+princicple of induction: ∀x, P(x) holds if P([]) holds and P(x) ⇒ P(x::xs)
+
+let isupper c = Char.code c >= Char.code ’A’ &&
+  Char.code c <= Char.code ’Z’
+let rec someupper lst = match lst with
+  | [] -> false
+  | x::xs -> isupper x || someupper xs
+
+induction on l1
+
+Base:
+show: someupper ([] @ l2) = someupper [] || someupper l2
+
+  LHS:
+  someupper ([] @ l2)
+  = someupper (l2)             # by understanding of @
+  = someupper(l2)              # by understanding of @
+
+  RHS:
+  = isupper [] || someupper l2 # by def of someupper
+  = false || someupper l2      # by def of someupper
+  = someupper l2               # by understanding of OR
+
+  The proof is correct since LHS=RHS.
+
+Inductive Case:
+show: someupper (x::xs @ l2) = someupper x::xs || someupper l2
+given: someupper (xs @ l2) = someupper xs || someupper l2
+
+someupper (x::xs @ l2)
+= someupper x::(xs@l2)                      # by properties of []
+= isupper x || someupper (xs@l2)            # by def of someupper
+= isupper x || someupper xs || someupper l2 # by inductive hypothesis
+= someupper x::xs || someupper l2           # by def of someupper
+
+
+#Question 5
+princicple of induction: ∀x, P(x) holds if P([]) holds and P(x) ⇒ P(x::xs)
+let isupper c = Char.code c >= Char.code ’A’ &&
+                Char.code c <= Char.code ’Z’
+
+let rec someupper lst = match lst with
+  | [] -> false
+  | x::xs -> isupper x || someupper xs
+
+let rec foldr (f:’a -> ’b -> ’b) (l:’a list) (v:’b) : ’b =
+match l with
+  | [] -> v
+  | x::xs -> f x (foldr f xs v)
+
+let upperor c b = isupper c || b
+
+let foldupper lst = foldr upperor lst false
+
+Base:
+show: someupper [] = foldupper []
+
+someupper []
+= foldr upperor [] false       # by def of foldupper
+= foldupper []                 # by def of foldupper function
+
+Inductive case:
+show: someupper x::xs = foldupper x::xs
+given: someupper xs = foldupper xs
+
+someupper x::xs
+= isupper x || someupper xs             # by def of someupper
+= isupper x || foldupper xs             # by Inductive hypothesis
+= upperor x (foldupper xs)              # by def of upperor
+= upperor x (foldr upperor xs false)    # by def of upperor
+= foldr upperor x::xs false             # by def of foldr
+= foldupper x::xs                       # by def of foldupper function
+
+#Quesiton 6
+princicple of induction: ∀x, P(x) holds if P(Leaf v) holds and P(x) ⇒ P(Brancht1, t2())
+
+type ’a tree = Leaf of ’a
+  | Branch of ’a tree * ’a tree
+let min x y = if x < y then x else y
+let rec mintree t = match t with
+  | Leaf v -> v
+  | Branch (t1, t2) -> min (mintree t1) (mintree t2)
+let rec tfold (l:’a -> ’b) (f: ’b -> ’b -> ’b) (t: ’a tree) : ’b = match t with
+  | Leaf v -> l v
+  | Branch (t1, t2) -> f (tfold l f t1) (tfold l f t2)
+let fold_mintree t = tfold (fun x -> x) min t
+
+prove: mintree t = fold mintree t
+
+Base:
+    show: mintree Leaf e = fold mintree Leaf e
+
+    LHS:
+    mintree Leaf e
+    = e                               # by def of mintree
+
+    RHS:
+    fold_mintree (Leaf e)
+    = tfold (fun x -> x) min e        # by def of fold_mintree function
+    = (fun x -> x) e                  # by def of tfold
+    = e                               # by def of tfold
+
+    The proof is correct since LHS=RHS.
+
+Inductive hypothesis:
+show: mintree Branch(l r) = fold_mintree Branch(l, r)
+given: mintree t = fold mintree t
+
+mintree Branch(l, r)
+= min (mintree l) (mintree r)                                # by def of mintree
+= min (fold_mintree l) (fold_mintree r)                      # by inductive hypothesis
+= min (tfold (fun x -> x) min l) (tfold (fun x -> x) min r)  # by def o f fold_mintree function
+= tfold (fun x -> x) min Branch(l, r)                        # by def of tfold
+= fold_mintree Branch(l, r)                                  # by def of fold_mintree function

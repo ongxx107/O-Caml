@@ -1,0 +1,86 @@
+(* Ren Jeik Ong (ongxx107) *)
+
+foldr f [] v = v
+foldr f (x::xs) v = f x (foldr f xs v)
+
+foldl f v [] = v
+foldl f v (x::xs) = foldl f (f v x) xs
+
+and b1 b2 = if b1 then b2 else false
+
+andl l = foldl and true l
+andr l = foldr and l true
+
+(* andl - Call by value (from inside-out) *)
+andl (true::false::true::true::[])
+= foldl and true (true::false::true::true::[])
+= foldl and (and true true) (false::true::true::[])
+= foldl and (if true then true else false) (false::true::true::[])
+= foldl and true (false::true::true::[])
+= foldl and (and true false) (true::true::[])
+= foldl and (if true then false else false) (true::true::[])
+= foldl and false (true::true::[])
+= foldl and (and false true) (true::[])
+= foldl and (if false then true else false) (true::[])
+= foldl and false (true::[])
+= foldl and (and false true) []
+= foldl and (if false then true else false) []
+= foldl and false []
+= false
+
+(* andl - Call by name (Outside towards inside ) *)
+andl (true::false::true::true::[])
+= foldl and true (true::false::true::true::[])
+= foldl and (and true true) (false::true::true::[])
+= foldl and (and (and true true) false) (true::true::[])
+= foldl and (and (and (and true true) false) true) (true::[])
+= foldl and (and (and (and (and true true) false) true) true) []
+= (and (and (and (and true true) false) true) true)
+= (if (and (and (and true true) false) true) then true else false)
+= (if (if (and (and true true) false) then true else false)
+   then true else false)
+= (if (if (if (and true true) then false else false) then true else false)
+   then true else false)
+= (if (if (if (if true then true else false) then false else false)
+       then true else false)
+   then true else false)
+= (if (if (if (true) then false else false) then true else false)
+   then true else false)
+= (if (if (false) then true else false) then true else false)
+= (if (false) then true else false)
+= false
+
+
+(* andr - Call by value (from inside-out) *)
+andr (true::false::true::true::[])
+= foldr and (true::false::true::true::[]) true
+= and true (foldr and (false::true::true::[]) true)
+= and true ( and false (foldr and (true::true::[]) true))
+= and true ( and false ( and true (foldr and (true::[]) true)))
+= and true ( and false ( and true ( and true (foldr and [] true))))
+= and true ( and false ( and true ( and true true)))
+= and true ( and false ( and true ( if true then true else false)))
+= and true ( and false ( and true (true)))
+= and true ( and false ( if true then true else false))
+= and true ( and false true)
+= and true ( if false then true else false)
+= and true false
+= if true then false else false
+= false
+
+(* andr - Call by name (Outside towards inside ) *)
+andr (true::false::true::true::[])
+= foldr and (true::false::true::true::[]) true
+= and true (foldr and (false::true::true::[]) true)
+= if true then (foldr and (false::true::true::[]) true) else false
+= foldr and (false::true::true::[]) true
+= and false (foldr and (true::true::[]) true)
+= if false then (foldr and (true::true::[]) true) else false
+= false
+
+(*
+Call by name for andr is most efficient because we could evaluate the 
+foldr less steps. Also, call by name foldr functions starts outside 
+towards inside. Since the false value is detected outside, then the whole 
+function stops and gives evaluation quickly.
+*)
